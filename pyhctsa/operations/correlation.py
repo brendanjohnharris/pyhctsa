@@ -18,17 +18,17 @@ def add_noise(y: ArrayLike, tau: Union[int, str] = 1, ami_method: str = 'even',
     """
     Changes in the automutual information with the addition of noise.
 
-    Adds Gaussian-distributed noise to the time series with increasing standard deviation, eta, 
-    across the range eta = 0, 0.1, ..., 2, and measures the mutual information at each point. 
-    Can be measured using histograms with extra_param bins or using the Information Dynamics 
+    Adds Gaussian-distributed noise to the time series with increasing standard deviation, eta,
+    across the range eta = 0, 0.1, ..., 2, and measures the mutual information at each point.
+    Can be measured using histograms with extra_param bins or using the Information Dynamics
     Toolkit. The output is a set of statistics on the resulting set of automutual information
-    estimates, including a fit to an exponential decay, since the automutual information 
-    decreases with the added white noise. This algorithm is quite different, but was based 
+    estimates, including a fit to an exponential decay, since the automutual information
+    decreases with the added white noise. This algorithm is quite different, but was based
     on the idea in [1].
 
     References
     ----------
-    .. [1] "Titration of chaos with added noise", Chi-Sang Poon and Mauricio Barahona 
+    .. [1] "Titration of chaos with added noise", Chi-Sang Poon and Mauricio Barahona
         P. Natl. Acad. Sci. USA, 98(13) 7107 (2001)
 
     Parameters
@@ -159,7 +159,7 @@ def add_noise(y: ArrayLike, tau: Union[int, str] = 1, ami_method: str = 'even',
 
 def first_under_fn(x : ArrayLike, m : ArrayLike, p : ArrayLike) -> float:
     """
-    Find the value of m for the first time p goes under the threshold, x. 
+    Find the value of m for the first time p goes under the threshold, x.
     p and m are vectors of the same length
     """
     first_i = next((m_val for m_val, p_val in zip(m, p) if p_val < x), m[-1])
@@ -169,7 +169,7 @@ def first_under_fn(x : ArrayLike, m : ArrayLike, p : ArrayLike) -> float:
 
 def theiler_q(y: ArrayLike) -> float:
     """
-    Computes Theiler's Q statistic which quantifies asymmetry in time. 
+    Computes Theiler's Q statistic which quantifies asymmetry in time.
 
     Calculates :math:`Q = \\langle (x_t + x_{t+1})^3 \\rangle / \\langle x^2 \\rangle^{3/2}`
     on a vector :math:`x`, as proposed by James Theiler.
@@ -208,7 +208,7 @@ def crinkle_statistic(y: ArrayLike) -> float:
             {\\left\\langle y_t^2 \\right\\rangle^2}
 
     Copyright (C) 1996, D. Kaplan <kaplan@macalester.edu>
-    
+
     Parameters
     ----------
     y : array-like
@@ -344,10 +344,10 @@ def embed2(y: ArrayLike, tau: Union[int, str] = 'tau') -> dict:
     """
     Statistics of the time series in a 2-dimensional embedding space.
 
-    Embeds the (z-scored) time series in a two-dimensional time-delay 
-    embedding space with a given time-delay, tau, and outputs a set 
-    of statistics about the structure in this space, including angular 
-    distribution, stationarity, Euclidean distances from the origin, 
+    Embeds the (z-scored) time series in a two-dimensional time-delay
+    embedding space with a given time-delay, tau, and outputs a set
+    of statistics about the structure in this space, including angular
+    distribution, stationarity, Euclidean distances from the origin,
     and statistics on outliers.
 
     Parameters
@@ -355,7 +355,7 @@ def embed2(y: ArrayLike, tau: Union[int, str] = 'tau') -> dict:
     y : array-like
         The input time series.
     tau : int or str, optional
-        The time-delay. If 'tau', it will be set to the first zero-crossing of 
+        The time-delay. If 'tau', it will be set to the first zero-crossing of
         the autocorrelation function (ACF). Default is ``'tau'``.
 
     Returns
@@ -392,13 +392,13 @@ def embed2(y: ArrayLike, tau: Union[int, str] = 'tau') -> dict:
 
     out['theta_mean'] = np.mean(theta)
     out['theta_std'] = np.std(theta, ddof=1)
-    
+
     bin_edges = np.linspace(-np.pi/2, np.pi/2, 11) # 10 bins in the histogram
     px, _ = _histcounts(theta, bin_edges=bin_edges)
     bin_widths = np.diff(bin_edges)
     out['hist10std'] = np.std(px, ddof=1)
     out['histent'] = -np.sum(px[px>0] * np.log(px[px>0] / bin_widths[px>0]))
-    
+
     # Stationarity in fifths of the time series
     # Use histograms with 4 bins
     x = np.linspace(-np.pi/2, np.pi/2, 5) # 4 bins
@@ -406,9 +406,9 @@ def embed2(y: ArrayLike, tau: Union[int, str] = 'tau') -> dict:
     n = np.zeros((len(x)-1, 5))
     for i in range(5):
         n[:, i], _ = np.histogram(theta[afifth*i:afifth*(i+1)], bins=x)
-        
+
     n = n / afifth
-    
+
     for i in range(4):
         out[f'stdb{i+1}'] = np.std(n[:, i], ddof=1)
 
@@ -442,16 +442,16 @@ def embed2(y: ArrayLike, tau: Union[int, str] = 'tau') -> dict:
     # area of max span of all points; versus area of max span of 50% of points closest to origin
     d = np.sqrt(m[:, 0]**2 + m[:, 1]**2)
     ix = np.argsort(d)
-    
+
     out['areas_all'] = np.ptp(m[:, 0]) * np.ptp(m[:, 1])
     r50 = ix[:int(np.ceil(len(ix)/2))] # ceil to match MATLAB's round fn output
-    
+
     out['areas_50'] = np.ptp(m[r50, 0]) * np.ptp(m[r50, 1])
     out['arearat'] = out['areas_50'] / out['areas_all']
 
-    return out 
+    return out
 
-def _histcounts(x: ArrayLike, bins: Union[int, None, str] = None, 
+def _histcounts(x: ArrayLike, bins: Union[int, None, str] = None,
                 bin_edges: Union[ArrayLike, None] = None) -> tuple:
     x = np.asarray(x).flatten()
 
@@ -518,11 +518,11 @@ def periodicity_wang(y: ArrayLike) -> dict:
 def compare_min_ami(y: ArrayLike, bin_method: str = 'std1',
                     num_bins: Union[int, ArrayLike] = 10) -> dict:
     """
-    Assess the variability in the first minimum of automutual 
+    Assess the variability in the first minimum of automutual
     information (AMI) across binning strategies.
 
-    This function computes the first minimum of the automutual 
-    information function for a time series using various histogram 
+    This function computes the first minimum of the automutual
+    information function for a time series using various histogram
     binning strategies and numbers of bins. It summarizes how the location
     of the first minimum varies across these different coarse-grainings.
 
@@ -538,7 +538,7 @@ def compare_min_ami(y: ArrayLike, bin_method: str = 'std1',
     Returns
     -------
     dict
-        Dictionary containing statistics on the set of first minimums 
+        Dictionary containing statistics on the set of first minimums
         of the automutual information function.
     """
     y = np.asarray(y)
@@ -576,7 +576,7 @@ def compare_min_ami(y: ArrayLike, bin_method: str = 'std1',
     out['mode'], out['modef'] = smode(ami_mins)
     out['modef'] = out['modef'] / num_bins_range
 
-    # converged value? 
+    # converged value?
     out['conv4'] = np.mean(ami_mins[-5:])
 
     # look for peaks (local maxima)
@@ -625,7 +625,7 @@ def histogram_ami(
         - 'quantiles': equiprobable bins using quantiles
 
         Default is ``'even'``.
-        
+
     num_bins : int, optional
         The number of bins to use. Default is 10.
 
@@ -703,10 +703,10 @@ def histogram_ami(
 
 def stick_angles(y: ArrayLike) -> dict:
     """
-    Analysis of the line-of-sight angles between time series data points. 
+    Analysis of the line-of-sight angles between time series data points.
 
-    Line-of-sight angles between time-series pts. treat each time-series value as a stick 
-    protruding from an opaque baseline level. Statistics are returned on the raw time series, 
+    Line-of-sight angles between time-series pts. treat each time-series value as a stick
+    protruding from an opaque baseline level. Statistics are returned on the raw time series,
     where sticks protrude from the zero-level, and the z-scored time series, where sticks
     protrude from the mean level of the time series.
 
@@ -741,8 +741,8 @@ def stick_angles(y: ArrayLike) -> dict:
 
     # Initialise output dictionary
     out = {}
-    out['std_p'] = np.nanstd(angles[0], ddof=1) 
-    out['mean_p'] = np.nanmean(angles[0]) 
+    out['std_p'] = np.nanstd(angles[0], ddof=1)
+    out['mean_p'] = np.nanmean(angles[0])
     out['median_p'] = np.nanmedian(angles[0])
 
     out['std_n'] = np.nanstd(angles[1], ddof=1)
@@ -755,7 +755,7 @@ def stick_angles(y: ArrayLike) -> dict:
 
     # difference between positive and negative angles
     # return difference in densities
-    
+
     ksx = np.linspace(np.min(all_angles), np.max(all_angles), 200)
     out['pnsumabsdiff'] = np.nan
     if (len(angles[0]) > 0 and len(angles[1]) > 0 and
@@ -774,7 +774,7 @@ def stick_angles(y: ArrayLike) -> dict:
             out['pnsumabsdiff'] = np.sum(np.abs(ksy1 - ksy2))
         except LinAlgError:
             pass
-    
+
     # # how symmetric is the distribution of angles?
     out['symks_p'] = np.nan
     out['ratmean_p'] = np.nan
@@ -788,7 +788,7 @@ def stick_angles(y: ArrayLike) -> dict:
             out['ratmean_p'] = np.mean(angles[0][angles[0] > 0])/np.mean(angles[0][angles[0] < 0])
         except LinAlgError:
             pass
-    
+
     out['symks_n'] = np.nan
     out['ratmean_n'] = np.nan
     if len(angles[1]) > 0 and np.var(angles[1]) > 1e-10:
@@ -800,7 +800,7 @@ def stick_angles(y: ArrayLike) -> dict:
             out['ratmean_n'] = np.mean(angles[1][angles[1] > 0])/np.mean(angles[1][angles[1] < 0])
         except LinAlgError:
             pass
-    
+
     # z-score
     zangles = []
     # handle the case where angles is a constant
@@ -831,7 +831,7 @@ def stick_angles(y: ArrayLike) -> dict:
         out['statav3_p_m'], out['statav3_p_s'] = np.nan, np.nan
         out['statav4_p_m'], out['statav4_p_s'] = np.nan, np.nan
         out['statav5_p_m'], out['statav5_p_s'] = np.nan, np.nan
-    
+
     # there are negative angles
     if len(zangles[1]) > 0:
         # StatAv2
@@ -847,9 +847,9 @@ def stick_angles(y: ArrayLike) -> dict:
         out['statav3_n_m'], out['statav3_n_s'] = np.nan, np.nan
         out['statav4_n_m'], out['statav4_n_s'] = np.nan, np.nan
         out['statav5_n_m'], out['statav5_n_s'] = np.nan, np.nan
-    
+
     # All angles
-    
+
     # StatAv2
     out['statav2_all_m'], out['statav2_all_s'] = _sub_statav(zallAngles, 2)
     # StatAv3
@@ -858,8 +858,8 @@ def stick_angles(y: ArrayLike) -> dict:
     out['statav4_all_m'], out['statav4_all_s'] = _sub_statav(zallAngles, 4)
     # StatAv5
     out['statav5_all_m'], out['statav5_all_s'] = _sub_statav(zallAngles, 5)
-    
-    # correlations? 
+
+    # correlations?
     if len(zangles[0]) > 0:
         out['tau_p'] = first_crossing(zangles[0], 'ac', 0, 'continuous')
         out['ac1_p'] = autocorr(zangles[0], 1, 'Fourier')[0]
@@ -868,7 +868,7 @@ def stick_angles(y: ArrayLike) -> dict:
         out['tau_p'] = np.nan
         out['ac1_p'] = np.nan
         out['ac2_p'] = np.nan
-    
+
     if len(zangles[1]) > 0:
         out['tau_n'] = first_crossing(zangles[1], 'ac', 0, 'continuous')
         out['ac1_n'] = autocorr(zangles[1], 1, 'Fourier')[0]
@@ -877,7 +877,7 @@ def stick_angles(y: ArrayLike) -> dict:
         out['tau_n'] = np.nan
         out['ac1_n'] = np.nan
         out['ac2_n'] = np.nan
-    
+
     out['tau_all'] = first_crossing(zallAngles, 'ac', 0, 'continuous')
     out['ac1_all'] = autocorr(zallAngles, 1, 'Fourier')[0]
     out['ac2_all'] = autocorr(zallAngles, 2, 'Fourier')[0]
@@ -894,7 +894,7 @@ def stick_angles(y: ArrayLike) -> dict:
     else:
         out['q1_p'], out['q10_p'], out['q90_p'], out['q99_p'], \
             out['skewness_p'], out['kurtosis_p'] = np.nan, np.nan, np.nan,  np.nan, np.nan, np.nan
-    
+
     if len(zangles[1]) > 0:
         out['q1_n'] = np.quantile(zangles[1], 0.01, method='hazen')
         out['q10_n'] = np.quantile(zangles[1], 0.1, method='hazen')
@@ -905,7 +905,7 @@ def stick_angles(y: ArrayLike) -> dict:
     else:
         out['q1_n'], out['q10_n'], out['q90_n'], out['q99_n'], \
             out['skewness_n'], out['kurtosis_n'] = np.nan, np.nan, np.nan,  np.nan, np.nan, np.nan
-    
+
     f_quantz = lambda x : np.quantile(zallAngles, x, method='hazen')
     out['q1_all'] = f_quantz(0.01)
     out['q10_all'] = f_quantz(0.1)
@@ -1007,8 +1007,8 @@ def nonlinear_autocorr(y: ArrayLike, taus: ArrayLike, absval: Union[bool, None] 
 def partial_autocorr(y: ArrayLike, max_tau: int = 10, what_method: str = 'ols') -> dict:
     """
     Compute the partial autocorrelation of an input time series.
-    
-    This function calculates the partial autocorrelation function (PACF) up to a specified 
+
+    This function calculates the partial autocorrelation function (PACF) up to a specified
     lag using either ordinary least squares or Yule-Walker equations.
 
     Parameters
@@ -1040,7 +1040,7 @@ def partial_autocorr(y: ArrayLike, max_tau: int = 10, what_method: str = 'ols') 
     if max_tau <= 0:
         raise ValueError('Negative or zero time lags not applicable')
 
-    method_map = {'ols': 'ols', 'Yule-Walker': 'ywm'} 
+    method_map = {'ols': 'ols', 'Yule-Walker': 'ywm'}
     if what_method not in method_map:
         raise ValueError(f"Invalid method: {what_method}. Use 'ols' or 'Yule-Walker'.")
 
@@ -1076,9 +1076,9 @@ def embed2_dist(y: ArrayLike, tau: Union[None, str, int] = None) -> dict:
 
     Returns
     -------
-    dict: 
-        A dictionary containing various statistics of the embedding including the 
-        autocorrelation of distances, the mean distance, the spread of distances, 
+    dict:
+        A dictionary containing various statistics of the embedding including the
+        autocorrelation of distances, the mean distance, the spread of distances,
         and statistics from an exponential fit to the distribution of distances.
     """
     y = np.asarray(y)
@@ -1086,7 +1086,7 @@ def embed2_dist(y: ArrayLike, tau: Union[None, str, int] = None) -> dict:
 
     if tau is None:
         tau = 'tau' # set to the first minimum of autocorrelation function
-    
+
     if tau == 'tau':
         tau = first_crossing(y, 'ac', 0, 'discrete')
         if tau > N / 10:
@@ -1101,7 +1101,7 @@ def embed2_dist(y: ArrayLike, tau: Union[None, str, int] = None) -> dict:
     # Calculate Euclidean distances between successive points in this space, d:
     out = {}
     d = np.sqrt(np.sum(np.diff(m, axis=0)**2, axis=1))
-    
+
     # Calculate autocorrelations
     out['d_ac1'] = autocorr(d, 1, 'Fourier')[0] # lag 1 ac
     out['d_ac2'] = autocorr(d, 2, 'Fourier')[0] # lag 2 ac
@@ -1198,7 +1198,7 @@ def embed2_basic(y: ArrayLike, tau: Union[int, str] = 1) -> dict:
     out['parabup01_1'] = np.divide(np.sum(np.abs(xtp - (xt**2 + 1)) < 0.1), N)
     out['parabup05_1'] = np.divide(np.sum(np.abs(xtp - (xt**2 + 1)) < 0.5), N)
 
-    # In a thick parabola concave down, shifted up 1 
+    # In a thick parabola concave down, shifted up 1
     out['parabdown01_1'] = np.divide(np.sum(np.abs(xtp + (xt**2 - 1)) < 0.1), N)
     out['parabdown05_1'] = np.divide(np.sum(np.abs(xtp + (xt**2 - 1)) < 0.5), N)
 
@@ -1222,12 +1222,12 @@ def embed2_basic(y: ArrayLike, tau: Union[int, str] = 1) -> dict:
     out['incircle_1'] = np.divide(np.sum(xtp**2 + xt**2 < 1), N)
     out['incircle_2'] = np.divide(np.sum(xtp**2 + xt**2 < 2), N)
     out['incircle_3'] = np.divide(np.sum(xtp**2 + xt**2 < 3), N)
-    
+
     incircle_values = [out['incircle_01'], out['incircle_02'], out['incircle_05'],
                        out['incircle_1'], out['incircle_2'], out['incircle_3']]
     out['medianincircle'] = np.median(incircle_values)
     out['stdincircle'] = np.std(incircle_values, ddof=1)
-    
+
     return out
 
 def embed2_shapes(y: ArrayLike, tau: Union[str, int, None] = 'tau',
@@ -1244,7 +1244,7 @@ def embed2_shapes(y: ArrayLike, tau: Union[str, int, None] = 'tau',
     y : array-like
         The input time-series (z-scored).
     tau : int or str, optional
-        The time-delay. If 'tau', it's set to the first zero crossing of the 
+        The time-delay. If 'tau', it's set to the first zero crossing of the
         autocorrelation function. Default is ``'tau'``.
     shape : str, optional
         The shape to use. Currently only 'circle' is supported. Default is ``circle``.
@@ -1327,14 +1327,14 @@ def fzcglscf(y: ArrayLike, alpha: Union[float, int], beta: Union[float, int],
     The first zero-crossing of the generalized self-correlation function.
 
     Returns the first zero-crossing of the generalized self-correlation function (GLSCF)
-    introduced by Queirós and Moyano (2007). The function calculates the GLSCF at 
+    introduced by Queirós and Moyano (2007). The function calculates the GLSCF at
     increasing time delays until it finds a zero crossing, and returns this lag value.
 
     Uses glscf to calculate the generalized self-correlations at each lag.
 
     References
     ----------
-    .. [1] Queirós, S.M.D., Moyano, L.G. (2007) "Yet on statistical properties of 
+    .. [1] Queirós, S.M.D., Moyano, L.G. (2007) "Yet on statistical properties of
            traded volume: Correlation and mutual information at different value magnitudes"
            Physica A, 383(1), pp. 10-15.
            DOI: 10.1016/j.physa.2007.04.068
@@ -1343,7 +1343,7 @@ def fzcglscf(y: ArrayLike, alpha: Union[float, int], beta: Union[float, int],
     ----------
     y : array-like
         The input time series.
-    alpha : float 
+    alpha : float
         The parameter alpha for GLSCF calculation. Must be non-zero.
     beta : float
         The parameter beta for GLSCF calculation. Must be non-zero.
@@ -1362,7 +1362,7 @@ def fzcglscf(y: ArrayLike, alpha: Union[float, int], beta: Union[float, int],
 
     if max_tau is None:
         max_tau = N
-    
+
     glscfs = np.zeros(max_tau)
 
     for i in range(1, max_tau+1):
@@ -1373,7 +1373,7 @@ def fzcglscf(y: ArrayLike, alpha: Union[float, int], beta: Union[float, int],
             # Draw a straight line between these two and look at where it hits zero
             out = i - 1 + glscfs[i-1]/(glscfs[i-1]-glscfs[i-2])
             return out
-    
+
     return max_tau
 
 def glscf(y: ArrayLike, alpha: float, beta: float, tau: Union[int, str] = 'tau') -> float:
@@ -1444,7 +1444,7 @@ def glscf(y: ArrayLike, alpha: float, beta: float, tau: Union[int, str] = 'tau')
     # Set tau to first zero-crossing of the autocorrelation function with the input 'tau'
     if tau == 'tau':
         tau = first_crossing(y, 'ac', 0, 'discrete')
-    
+
     # Take magnitudes of time-delayed versions of the time series
     y1 = np.abs(y[:-tau])
     y2 = np.abs(y[tau:])
@@ -1471,7 +1471,7 @@ def autocorr(y: ArrayLike, tau: Union[int, list] = 1,
 
         - If an ``int``, returns the autocorrelation of ``y`` at that lag.
         - If a ``list`` of integers, returns autocorrelations at those lags.
-        - If an empty list, returns the full autocorrelation function when 
+        - If an empty list, returns the full autocorrelation function when
         using the ``"Fourier"`` estimation method.
         Default is 1.
 
@@ -1508,7 +1508,7 @@ def autocorr(y: ArrayLike, tau: Union[int, list] = 1,
         acf = acf / acf[0]  # Normalize
         acf = np.real(acf)
         acf = acf[:N]
-        
+
         if not tau:  # list empty, return the full function
             out = acf
         else:  # return a specific set of values
@@ -1522,16 +1522,16 @@ def autocorr(y: ArrayLike, tau: Union[int, list] = 1,
     elif method == 'TimeDomainStat':
         sigma2 = np.std(y, ddof=1)**2  # time-series variance
         mu = np.mean(y)  # time-series mean
-        
+
         def acf_y(t):
             return np.mean((y[:N-t] - mu) * (y[t:] - mu)) / sigma2
-        
+
         tau = np.atleast_1d(tau)
         out = np.array([acf_y(t) for t in tau])
     elif method == 'TimeDomain':
         tau = np.atleast_1d(tau)
         out = np.zeros(len(tau))
-        
+
         for i, t in enumerate(tau):
             if np.any(np.isnan(y)):
                 good_r = (~np.isnan(y[:N-t])) & (~np.isnan(y[t:]))
@@ -1547,10 +1547,10 @@ def autocorr(y: ArrayLike, tau: Union[int, list] = 1,
                 y2 = y[t:]
                 # std() ddof adjusted to be consistent with numerator's N normalization
                 out[i] = np.mean((y1 - np.mean(y1)) * (y2 - np.mean(y2))) / np.std(y1, ddof=0) / np.std(y2, ddof=0)
-    
+
     else:
         raise ValueError(f"Unknown autocorrelation estimation method {method}")
-    
+
     return out
 
 def first_crossing(y: ArrayLike, corr_fun: str = 'ac', threshold: float = 0.0,
@@ -1621,20 +1621,20 @@ def translate_shape(y: ArrayLike, shape: str = 'circle', d: int = 2,
     y : array-like
         The input time series (1D array).
     shape : str, optional
-        The shape to move along the time series. Supported options: 'circle', 'rectangle'. 
+        The shape to move along the time series. Supported options: 'circle', 'rectangle'.
         Default is 'circle'.
     d : int, optional
-        Parameter specifying the size of the shape (e.g., radius for 'circle', 
+        Parameter specifying the size of the shape (e.g., radius for 'circle',
             half-width for 'rectangle'). Default is 2.
     how_to_move : str, optional
-        Method for moving the shape. Currently, only ``'pts'`` is supported, which places 
+        Method for moving the shape. Currently, only ``'pts'`` is supported, which places
         the shape on each point in the time series. Default is ``'pts'``.
 
     Returns
     -------
     dict
-        Dictionary containing statistics on the number of points inside the shape as it 
-        moves through the time series, including mean, std, mode, and proportions 
+        Dictionary containing statistics on the number of points inside the shape as it
+        moves through the time series, including mean, std, mode, and proportions
         for various counts.
 
     """
@@ -1690,7 +1690,7 @@ def translate_shape(y: ArrayLike, shape: str = 'circle', d: int = 2,
     out["max"] = np.max(np_counts)
     out["std"] = np.std(np_counts, ddof=1)
     out["mean"] = np.mean(np_counts)
-    
+
     # count the hits
     vals, hits = np.unique_counts(np_counts)
     max_val = np.argmax(hits)
@@ -1701,7 +1701,7 @@ def translate_shape(y: ArrayLike, shape: str = 'circle', d: int = 2,
     for i in range(1, 12):
         if 2*w + 1 >= i:
             out[f"{count_types[i-1]}"] = np.mean(np_counts == i)
-    
+
     out['statav2_m'] = _stat_av(np_counts, 'mean', 2, 1)
     out['statav2_s'] = _stat_av(np_counts, 'std', 2, 1)
     out['statav3_m'] = _stat_av(np_counts, 'mean', 3, 1)
@@ -1722,7 +1722,7 @@ def _stat_av(y: ArrayLike, window_stat: str = 'mean', num_seg: int = 5, inc_move
     # if incrment rounded down to zero, prop it up
     if inc == 0:
         inc = 1
-    
+
     num_steps = int(np.floor((len(y)-win_length)/inc) + 1)
     qs = np.zeros(num_steps)
 
@@ -1732,7 +1732,7 @@ def _stat_av(y: ArrayLike, window_stat: str = 'mean', num_seg: int = 5, inc_move
         end_idx = (step_ind) * inc + win_length
 
         return np.arange(start_idx, end_idx).astype(int)
-    
+
     if window_stat == 'mean':
         for i in range(num_steps):
             qs[i] = np.mean(y[get_window(i)])
@@ -1742,7 +1742,7 @@ def _stat_av(y: ArrayLike, window_stat: str = 'mean', num_seg: int = 5, inc_move
 
     return np.std(qs, ddof=1)/np.std(y, ddof=1)
 
-def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> dict:
+def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'posDrown') -> dict:
     """
     How the autocorrelation function changes with the time lag.
 
@@ -1755,7 +1755,7 @@ def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> di
         The input time series.
     stop_when : str or int, optional
         The criterion for the maximum lag to measure the ACF up to.
-        Default is ``'pos_drown'``.
+        Default is ``'posDrown'``.
 
     Returns
     --------
@@ -1776,11 +1776,11 @@ def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> di
         taus = list(range(0, stop_when+1))
         acf = autocorr(y, taus, 'Fourier')
         n_drown = stop_when
-        
-    elif stop_when in ['pos_drown', 'drown', 'double_drown']:
+
+    elif stop_when in ['posDrown', 'drown', 'doubleDrown']:
         # Compute ACF up to a given threshold:
         n_drown = 0 # the point at which ACF ~ 0
-        if stop_when == 'pos_drown':
+        if stop_when == 'posDrown':
             # stop when ACF drops below threshold, th
             for i in range(1, N+1):
                 acf_val = autocorr(y, i-1, 'Fourier')[0]
@@ -1811,7 +1811,7 @@ def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> di
                     acf.append(acf_val)
                     break
                 acf.append(acf_val)
-        elif stop_when == 'double_drown':
+        elif stop_when == 'doubleDrown':
             # Stop at 2*tau, where tau is the lag where ACF ~ 0 (within 1/sqrt(N) threshold)
             for i in range(1, N+1):
                 acf_val = autocorr(y, i-1, 'Fourier')[0]
@@ -1831,14 +1831,14 @@ def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> di
     if np.any(np.isnan(acf)):
         # This is an anomalous time series (e.g., all constant, or conatining NaNs)
         out = np.nan
-    
+
     out = {}
     out['Nac'] = n_drown
 
     # Basic stats on the ACF
     out['sumacf'] = np.sum(acf)
     out['meanacf'] = np.mean(acf)
-    if stop_when != 'pos_drown':
+    if stop_when != 'posDrown':
         out['meanabsacf'] = np.mean(np.abs(acf))
         out['sumabsacf'] = np.sum(np.abs(acf))
 
@@ -1855,7 +1855,7 @@ def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> di
     else:
         out['ac1'] = np.nan
         out['actau'] = np.nan
-    
+
     # Local extrema
     dacf = np.diff(acf)
     ddacf = np.diff(dacf)
@@ -1879,7 +1879,7 @@ def autocorr_shape(y: ArrayLike, stop_when: Union[int, str] = 'pos_drown') -> di
     fit_success = False
     min_pts_to_fit_exp = 4 # (need at least four points to fit exponential)
 
-    if stop_when == 'pos_drown' and nac >= min_pts_to_fit_exp:
+    if stop_when == 'posDrown' and nac >= min_pts_to_fit_exp:
         # Fit exponential decay to (absolute) ACF:
         # (kind of only makes sense for the first positive period)
         exp_func = lambda x, b : np.exp(-b * x)
@@ -1909,8 +1909,8 @@ def trev(y: ArrayLike, tau: Union[int, str] = 'ac') -> dict:
     """
     Normalized nonlinear autocorrelation (trev) function of a time series.
 
-    Calculates the trev function, a normalized nonlinear autocorrelation, 
-    as described in the TSTOOL nonlinear time-series analysis package. 
+    Calculates the trev function, a normalized nonlinear autocorrelation,
+    as described in the TSTOOL nonlinear time-series analysis package.
     This quantity is often used as a nonlinearity statistic in surrogate data analysis,
     see [1].
 
@@ -1989,7 +1989,7 @@ def tc3(y: list, tau: Union[int, str, None] = 'ac') -> dict:
         Input time series.
     tau : int or str, optional
         Time lag. Can be:
-        
+
             - int: Use the specified lag.
             - 'ac': Use the first zero-crossing of the autocorrelation function.
             - 'mi': Use the first minimum of the automutual information function.
@@ -2006,7 +2006,7 @@ def tc3(y: list, tau: Union[int, str, None] = 'ac') -> dict:
         - 'num': The numerator
         - 'absnum': The magnitude of the numerator
         - 'denom': The denominator
-        
+
     """
     # Set the time lag as a measure of the time-series correlation length
     # Can set the time lag, tau, to be 'ac' or 'mi'
@@ -2016,10 +2016,10 @@ def tc3(y: list, tau: Union[int, str, None] = 'ac') -> dict:
     elif tau == 'mi':
         # tau is the first minimum of the automutual information function
         tau = first_min(y, 'mi')
-    
+
     if np.isnan(tau):
         raise ValueError("No valid setting for time delay (time series too short?)")
-    
+
     # Compute tc3 statistic
     yn = y[:-2*tau]
     yn1 = y[tau:-tau] # yn1, tau steps ahead
