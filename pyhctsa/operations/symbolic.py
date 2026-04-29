@@ -15,10 +15,10 @@ def surprise(y: ArrayLike, what_prior: str = 'dist', memory: float = 0.2, num_gr
     """
     Quantifies how surprised you would be of the next data point given recent memory.
 
-    Coarse-grains the time series, turning it into a sequence of symbols of a 
-    given alphabet size (`num_groups`), and quantifies measures of surprise of 
+    Coarse-grains the time series, turning it into a sequence of symbols of a
+    given alphabet size (`num_groups`), and quantifies measures of surprise of
     a process with local memory of the past `memory` values of the symbolic string.
-    For each sample, the 'information gained' (log(1/p)) is estimated using expectations 
+    For each sample, the 'information gained' (log(1/p)) is estimated using expectations
     calculated from the previous `memory` samples.
 
     Parameters
@@ -35,7 +35,7 @@ def surprise(y: ArrayLike, what_prior: str = 'dist', memory: float = 0.2, num_gr
         Default is ``'dist'``.
 
     memory : float, optional
-        The memory length (either number of samples, or a proportion of the time-series length 
+        The memory length (either number of samples, or a proportion of the time-series length
         if between 0 and 1). Default is 0.2.
     num_groups : int, optional
         The number of groups to coarse-grain the time series into. Default is 3.
@@ -44,9 +44,9 @@ def surprise(y: ArrayLike, what_prior: str = 'dist', memory: float = 0.2, num_gr
 
         - 'quantile': equiprobable alphabet by value of each time-series datapoint (default),
         - 'updown': equiprobable alphabet by incremental changes in the time-series values,
-        - 'embed2quadrants': 4-letter alphabet of the quadrant each data point resides in a 
+        - 'embed2quadrants': 4-letter alphabet of the quadrant each data point resides in a
             2D embedding space.
-        
+
         Default is ``'quantile'``.
 
     num_iters : int, optional
@@ -81,8 +81,8 @@ def surprise(y: ArrayLike, what_prior: str = 'dist', memory: float = 0.2, num_gr
         if what_prior == 'dist':
             # uses the distribution up to memory to inform the next point
             # had to be careful with indexing, arange() works like matlab's : operator
-            store[i] = p
             p = np.sum(yth[rs[0, i]-memory:rs[0, i]] == yth[rs[0, i]])/memory
+            store[i] = p
         elif what_prior == 'T1':
             # uses one-point correlations in memory to inform the next point
             # estimate transition probabilites from data in memory
@@ -122,7 +122,7 @@ def surprise(y: ArrayLike, what_prior: str = 'dist', memory: float = 0.2, num_gr
         out['min'] = min(store[store > 0]) # find the minimum value in the array, excluding zero
     else:
         out['min'] = np.nan
-        
+
     # Calculate statistics
     #print(sum(store))
     out['max'] = np.max(store) # maximum amount of information you cna gain in this way
@@ -135,8 +135,8 @@ def surprise(y: ArrayLike, what_prior: str = 'dist', memory: float = 0.2, num_gr
     out['uq'] = uq[0]
     out['std'] = np.std(store, ddof=1)
 
-    # t-statistic to information gain of 1. Note due to division of std which can 
-    # be very effectively 0, this value can explode. 
+    # t-statistic to information gain of 1. Note due to division of std which can
+    # be very effectively 0, this value can explode.
     # Should fix w/ a NaN but want to replicate MATLAB func for now.
     if out['std'] == 0:
         out['tstat'] = np.nan
@@ -172,9 +172,9 @@ def motif_two(y: ArrayLike, binarize_how: str = 'diff') -> dict:
     dict
         A dictionary containing:
 
-        - 'prob_len_1', 'prob_len_2', ..., 'prob_len_4': 
+        - 'prob_len_1', 'prob_len_2', ..., 'prob_len_4':
             Lists of probabilities for each binary word of lengths 1 to 4.
-        - 'entropy_len_1', 'entropy_len_2', ..., 'entropy_len_4': 
+        - 'entropy_len_1', 'entropy_len_2', ..., 'entropy_len_4':
             Entropy values associated with the word distributions of lengths 1 to 4.
 
     """
@@ -228,7 +228,7 @@ def motif_two(y: ArrayLike, binarize_how: str = 'diff') -> dict:
 
     # 000
     r000 = np.logical_and(r00, y_bin[2:] == 0)
-    # 001 
+    # 001
     r001 = np.logical_and(r00, y_bin[2:] == 1)
     r010 = np.logical_and(r01, y_bin[2:] == 0)
     r011 = np.logical_and(r01, y_bin[2:] == 1)
@@ -247,8 +247,8 @@ def motif_two(y: ArrayLike, binarize_how: str = 'diff') -> dict:
     out['uud'] = np.mean(r110)
     out['uuu'] = np.mean(r111)
 
-    ppp = np.array([out['ddd'], out['ddu'], out['dud'], 
-                    out['duu'], out['udd'], out['udu'], 
+    ppp = np.array([out['ddd'], out['ddu'], out['dud'],
+                    out['duu'], out['udd'], out['udu'],
                     out['uud'], out['uuu']])
     out['hhh'] = _f_entropy(ppp)
 
@@ -301,11 +301,11 @@ def motif_two(y: ArrayLike, binarize_how: str = 'diff') -> dict:
     out['uuud'] = np.mean(r1110)
     out['uuuu'] = np.mean(r1111)
 
-    pppp = np.array([out['dddd'], out['dddu'], out['ddud'], 
-                     out['dduu'], out['dudd'], out['dudu'], 
-                     out['duud'], out['duuu'], out['uddd'], 
-                     out['uddu'], out['udud'], out['uduu'], 
-                     out['uudd'], out['uudu'], out['uuud'], 
+    pppp = np.array([out['dddd'], out['dddu'], out['ddud'],
+                     out['dduu'], out['dudd'], out['dudu'],
+                     out['duud'], out['duuu'], out['uddd'],
+                     out['uddu'], out['udud'], out['uduu'],
+                     out['uudd'], out['uudu'], out['uuud'],
                      out['uuuu']])
     out['hhhh'] = _f_entropy(pppp)
 
@@ -389,7 +389,7 @@ def motif_three(y: ArrayLike, cg_how: str = 'quantile') -> dict:
             for k in range(3):
                 out3[i, j, k] = len(r3[i][j][k]) / (N - 2)
 
-    out.update({f'{chr(97+i)}{chr(97+j)}{chr(97+k)}': out3[i, j, k] 
+    out.update({f'{chr(97+i)}{chr(97+j)}{chr(97+k)}': out3[i, j, k]
                 for i in range(3) for j in range(3) for k in range(3)})
     out['hhh'] = _f_entropy(out3)
 
@@ -406,7 +406,7 @@ def motif_three(y: ArrayLike, cg_how: str = 'quantile') -> dict:
                 for l in range(3):
                     out4[i, j, k, l] = len(r4[i][j][k][l]) / (N - 3)
 
-    out.update({f'{chr(97+i)}{chr(97+j)}{chr(97+k)}{chr(97+l)}': out4[i, j, k, l] 
+    out.update({f'{chr(97+i)}{chr(97+j)}{chr(97+k)}{chr(97+l)}': out4[i, j, k, l]
                 for i in range(3) for j in range(3) for k in range(3) for l in range(3)})
     out['hhhh'] = _f_entropy(out4)
 
@@ -474,16 +474,16 @@ def binary_stretch(x: ArrayLike, stretch_what: str = 'lseq1') -> float:
             out = None
     else:
         raise ValueError(f"Unknown input {stretch_what}")
-    
+
     return out if out is not None else 0
 
 def binary_stats(y: ArrayLike, binary_method: str = 'diff') -> dict:
     """
     Compute statistics on a binary symbolisation of the input time series.
 
-    The time series is first symbolized as a binary string of 0s and 1s 
-    using a specified coarse-graining (symbolisation) method. Then, various 
-    statistics are computed to characterize the structure of the resulting 
+    The time series is first symbolized as a binary string of 0s and 1s
+    using a specified coarse-graining (symbolisation) method. Then, various
+    statistics are computed to characterize the structure of the resulting
     binary sequence.
 
     Parameters
@@ -504,7 +504,7 @@ def binary_stats(y: ArrayLike, binary_method: str = 'diff') -> dict:
     dict
         Statistics computed on the binary symbolisation.
     """
-    
+
     # Binarize the time series
     y = np.asarray(y)
     y_bin = binarize(y, binarize_how=binary_method)
@@ -553,7 +553,7 @@ def binary_stats(y: ArrayLike, binary_method: str = 'diff') -> dict:
         out['meanstretch1norm'] = np.mean(stretch1) / N
         out['stdstretch1'] = np.std(stretch1, ddof=1)
         out['stdstretch1norm'] = np.std(stretch1, ddof=1) / N
-    
+
     out['meanstretchdiff'] = (out['meanstretch1'] - out['meanstretch0']) / N
     out['stdstretchdiff'] = (out['stdstretch1'] - out['stdstretch0']) / N
 
@@ -565,7 +565,7 @@ def binary_stats(y: ArrayLike, binary_method: str = 'diff') -> dict:
 def transition_matrix(y: ArrayLike, how_to_cg: str = 'quantile',
                       num_groups: int = 2, tau: Union[int, str] = 1) -> dict:
     """
-    Transition probabilities between time-series states. 
+    Transition probabilities between time-series states.
     The time series is coarse-grained according to a given method.
 
     The input time series is transformed into a symbolic string using an
@@ -597,7 +597,7 @@ def transition_matrix(y: ArrayLike, how_to_cg: str = 'quantile',
 
     Returns
     -------
-    dict 
+    dict
         A dictionary including the transition probabilities themselves, as well as the trace
         of the transition matrix, measures of asymmetry, and eigenvalues of the
         transition matrix.
@@ -614,7 +614,7 @@ def transition_matrix(y: ArrayLike, how_to_cg: str = 'quantile',
     if tau > 1: # calculate transition matrix at a non-unit lag
         # downsample at rate 1:tau
         y = ssre(y, int(np.ceil(len(y) / tau)))
-    
+
     N = len(y)
 
     yth = coarse_grain(y, how_to_cg, num_groups)
@@ -686,13 +686,13 @@ def coarse_grain(y: list, how_to_cg: str, num_groups: int) -> np.ndarray:
         The input time series.
     how_to_cg : str
         The method of coarse-graining.
-        Options: 
+        Options:
 
         - 'updown'
         - 'quantile'
         - 'embed2quadrants'
         - 'embed2octants'
-        
+
     num_groups : int
         Specifies the size of the alphabet for 'quantile' and 'updown',
         or sets the time delay for the embedding subroutines.
@@ -721,7 +721,7 @@ def coarse_grain(y: list, how_to_cg: str, num_groups: int) -> np.ndarray:
             tau = first_crossing(y, 'ac', 0, 'discrete')
         else:
             tau = num_groups
-        
+
         if tau > N/25:
             tau = N // 25
 
@@ -736,7 +736,7 @@ def coarse_grain(y: list, how_to_cg: str, num_groups: int) -> np.ndarray:
         q2r = np.logical_and(upr, m1 < 0) # points in quadrant 2
         q3r = np.logical_and(downr, m1 < 0) # points in quadrant 3
         q4r = np.logical_and(downr, m1 >= 0) # points in quadrant 4
-    
+
     # Do the coarse graining
     yth = None  # Ensure yth is always defined
     if how_to_cg == 'quantile':
@@ -754,7 +754,7 @@ def coarse_grain(y: list, how_to_cg: str, num_groups: int) -> np.ndarray:
         yth[q2r] = 2
         yth[q3r] = 3
         yth[q4r] = 4
-        
+
     elif how_to_cg == 'embed2octants': # divide based on octants in 2-D embedding space
         o1r = np.logical_and(q1r, m2 < m1) # points in octant 1
         o2r = np.logical_and(q1r, m2 >= m1) # points in octant 2
