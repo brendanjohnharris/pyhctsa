@@ -413,8 +413,7 @@ def local_extrema(y: ArrayLike, how_to_window: str = 'l', n: Union[int, None] = 
         raise ValueError(f"Unknown method {how_to_window}")
     
     if (window_length > N) or (window_length <= 1):
-        # This feature is unsuitable if the window length exceeds ts
-        out = np.nan
+        return np.nan
     
     # Buffer the time series
     y_buff = make_mat_buffer(y, window_length) # no overlap
