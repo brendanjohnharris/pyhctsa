@@ -59,12 +59,6 @@ def _ami_gaussian_curve(y: np.ndarray):
     return auto_corr
 
 
-# Minimum number of requested lags for ``automutual_info`` (gaussian) to switch from
-# the per-lag GaussianMI loop to a single ``_ami_gaussian_curve`` pass. Above this,
-# one O(n log n) curve beats N x O(n) covariances; below it the loop is cheaper.
-_AMI_CURVE_MIN_LAGS = 8
-
-
 
 _VECTORISED_CORR = ('ac', 'mi', 'mi-gaussian')
 
@@ -347,13 +341,22 @@ def automutual_info_stats(
     max_tau = int(max_tau)
     max_tau_0 = int(max_tau_0)
     time_delay = list(range(1, max_tau + 1))
-    ami = automutual_info(
-        y,
-        time_delay=time_delay,
-        est_method=est_method,
-        extra_param=extra_param
-    )
-    ami = np.array(list(ami.values()))
+    if est_method == 'gaussian' and n >= 3:
+        # Fast path: evaluate the whole Gaussian AMI curve in one O(n log n) pass
+        # instead of max_tau per-lag GaussianMI calls
+        min_samples = 5
+        td = np.arange(1, max_tau + 1)
+        ami = np.full(max_tau, np.nan)
+        valid = td <= (n - min_samples)
+        ami[valid] = _ami_gaussian_curve(y)[td[valid] - 1]
+    else:
+        ami = automutual_info(
+            y,
+            time_delay=time_delay,
+            est_method=est_method,
+            extra_param=extra_param
+        )
+        ami = np.array(list(ami.values()))
 
     out = {}  # create dict for storing results
 
@@ -486,37 +489,25 @@ def automutual_info(
     if num_time_delays > 1:
         time_delay = np.sort(time_delay)
     
-    # Fast path: for the Gaussian estimator with many lags, evaluate the whole
-    # automutual-information curve in one O(n log n) pass instead of calling
-    # GaussianMI.compute() (3x np.cov + 3x slogdet) per lag. For a 1-D delay pair
-    # GaussianMI == -0.5*ln(1 - r^2), which _ami_gaussian_curve reproduces via an FFT
-    # autocorrelation + cumulative-sum moments (agreement ~1e-11, FFT rounding).
-    if (est_method == 'gaussian' and num_time_delays >= _AMI_CURVE_MIN_LAGS
-            and n >= 3 and np.min(time_delay) >= 1):
-        curve = _ami_gaussian_curve(y)                 # AMI at lags 1..n-1, index [lag-1]
-        td = np.asarray(time_delay)
-        valid = td <= (n - min_samples)
-        amis[valid] = curve[td[valid] - 1]
+    if est_method == 'kraskov1':
+        mi_calc = KraskovMI(k=kval, algorithm=1, add_noise=False) # no added noise
+    elif est_method == 'kraskov2':
+        mi_calc = KraskovMI(k=kval, algorithm=2, add_noise=False)
+    elif est_method == 'gaussian':
+        mi_calc = GaussianMI()
     else:
-        if est_method == 'kraskov1':
-            mi_calc = KraskovMI(k=kval, algorithm=1, add_noise=False) # no added noise
-        elif est_method == 'kraskov2':
-            mi_calc = KraskovMI(k=kval, algorithm=2, add_noise=False)
-        elif est_method == 'gaussian':
-            mi_calc = GaussianMI()
-        else:
-            raise ValueError(f'Unknown estimator: {est_method}')
+        raise ValueError(f'Unknown estimator: {est_method}')
 
-        for k, delay in enumerate(time_delay):
-            if delay > n - min_samples:
-                # time series too short - keep the remaining values as NaNs
-                break
+    for k, delay in enumerate(time_delay):
+        if delay > n - min_samples:
+            # time series too short - keep the remaining values as NaNs
+            break
 
-            # form the time-delay vectors y1 and y2
-            y1 = y[:-delay]
-            y2 = y[delay:]
+        # form the time-delay vectors y1 and y2
+        y1 = y[:-delay]
+        y2 = y[delay:]
 
-            amis[k] = mi_calc.compute(y1, y2)
+        amis[k] = mi_calc.compute(y1, y2)
         
     if np.isnan(amis).any():
         logger.warning(
